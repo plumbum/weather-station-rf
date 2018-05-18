@@ -1,0 +1,8 @@
+\ Emulate reset/reboot trought IWDG
+: REBOOT ( -- ) [
+    $9B C,                  \         SIM
+    $35 C, $CC C, $50E0 ,   \         MOV     IWDG_KR, #0xCC
+    $8E C,                  \ 1$:     HALT
+    $20 C, $FD C,           \         JRA     1$
+] ;
+
