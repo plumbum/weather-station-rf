@@ -28,8 +28,16 @@
 \res export PB_DDR
 \res export PB_CR1
 
+\res export USART1_BRR1
+\res export CLK_CKDIVR
+
 #require ]C!
 #require ]B!
+
+: clk2mhz ( -- )
+    $0D00 USART1_BRR1 !
+    %011  CLK_CKDIVR C!
+;
 
 \ ------------------------------------------------------------------------------
 \ Send byte as 11-chip [Barker code](https://en.wikipedia.org/wiki/Barker_code) via SPI.
@@ -41,7 +49,7 @@
 : bark-init ( br -- )
     \ Init GPIO
     [ 1 PB_CR1 6 ]B! \ SPI1_MOSI Push-pull/Pull-up
-    \ The call is not used, but can not be disabled by software.
+    \ The SPI CLK is not used, but can not be disabled by software.
     [ 1 PB_CR1 5 ]B! \ SPI1_CLK Push-pull/Pull-up
 
     \ Init SPI
@@ -60,38 +68,38 @@
     [ %00101000 DMA1_C2CR  ]C! \ Addr inc, mem->periph
     [ %00100000 DMA1_C2SPR ]C! \ Priority high
     SPI1_DR DMA1_C2PARH ! \ Target periph address
+
+    [ 1 SPI1_ICR  1 ]B! \ TXDMAEN - TX DMA Enable
 ;
 
 \ Send buffer to SPI.
 : bark-send ( n addr -- )
-    [ 0 SPI1_ICR  1 ]B! \ TXDMAEN - TX DMA disable
     [ 0 DMA1_C2CR 0 ]B! \ DMA channel 2 disable
     DMA1_C2M0ARH  ! \ Source memory
     DMA1_C2NDTR  C! \ Length in bytes
-    [ 1 SPI1_ICR  1 ]B! \ TXDMAEN - TX DMA Enable
     [ 1 DMA1_C2CR 0 ]B! \ DMA channel 2 enable, start transmission
 ;
 
 \ Buffer to create send byte sequence. variable 2 byte + allot 9+1 bytes. Last byte must be 0, for SPI MOSI off.
-variable bark-buf 10 allot
+variable bark-buf $A allot
 variable bark-tmp
 
 \ Store to buffer sequense of 11 bytes to send 8 zero bits (one byte).
 \ %11100010010 \ Bit 1
 \ %00011101101 \ Bit 0
 : bark-buf0 ( -- )
-    [ %00011101 bark-buf  0 + ]C! \  0 [77777777] bit
-    [ %10100011 bark-buf  1 + ]C! \  1 [77766666] bit
-    [ %10110100 bark-buf  2 + ]C! \  2 [66666655] bit
-    [ %01110110 bark-buf  3 + ]C! \  3 [55555555] bit
-    [ %10001110 bark-buf  4 + ]C! \  4 [54444444] bit
-    [ %11010001 bark-buf  5 + ]C! \  5 [44443333] bit
-    [ %11011010 bark-buf  6 + ]C! \  6 [33333332] bit
-    [ %00111011 bark-buf  7 + ]C! \  7 [22222222] bit
-    [ %01000111 bark-buf  8 + ]C! \  8 [22111111] bit
-    [ %01101000 bark-buf  9 + ]C! \  9 [11111000] bit
-    [ %11101101 bark-buf 10 + ]C! \ 10 [00000000] bit
-    [ 0         bark-buf 11 + ]C! \ Final zero byte for SPI MOSI off.
+    [ %00011101 bark-buf $0 + ]C! \  0 [77777777] bit
+    [ %10100011 bark-buf $1 + ]C! \  1 [77766666] bit
+    [ %10110100 bark-buf $2 + ]C! \  2 [66666655] bit
+    [ %01110110 bark-buf $3 + ]C! \  3 [55555555] bit
+    [ %10001110 bark-buf $4 + ]C! \  4 [54444444] bit
+    [ %11010001 bark-buf $5 + ]C! \  5 [44443333] bit
+    [ %11011010 bark-buf $6 + ]C! \  6 [33333332] bit
+    [ %00111011 bark-buf $7 + ]C! \  7 [22222222] bit
+    [ %01000111 bark-buf $8 + ]C! \  8 [22111111] bit
+    [ %01101000 bark-buf $9 + ]C! \  9 [11111000] bit
+    [ %11101101 bark-buf $A + ]C! \ 10 [00000000] bit
+    [ 0         bark-buf $B + ]C! \ Final zero byte for SPI MOSI off.
 ;
 
 \ Encode byte to Barker code sequence.
@@ -176,8 +184,10 @@ variable bark-tmp
     ]
 ;
 
+clk2mhz
+
 $5200 $0F dump
-7 bark-init
+6 bark-init
 $5200 $0F dump
 
 bark-buf0
