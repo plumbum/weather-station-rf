@@ -72,6 +72,22 @@
     [ 1 SPI1_ICR  1 ]B! \ TXDMAEN - TX DMA Enable
 ;
 
+\ Wait while DMA busy.
+: bark-wait ( -- )
+    [ $720E , DMA1_C2SPR , $FB C, ]
+;
+
+: bark-busy ( -- f )
+    [
+      $905F ,                       \ [ 1]         CLRW    Y
+      $720F , DMA1_C2SPR , $00 C,   \ [ 2]         BTJF    DMA1_C2SPR, #7, 1$
+      $9059 ,                       \ [ 2] 1$:     RLCW    Y
+      $5A C,                        \ [ 2]         DECW    X
+      $5A C,                        \ [ 2]         DECW    X
+      $FF C,                        \ [ 2]         LDW     (X),Y
+    ]
+;
+
 \ Send buffer to SPI.
 : bark-send ( n addr -- )
     [ 0 DMA1_C2CR 0 ]B! \ DMA channel 2 disable
@@ -187,15 +203,18 @@ variable bark-tmp
 clk2mhz
 
 $5200 $0F dump
-6 bark-init
+7 bark-init
 $5200 $0F dump
 
 bark-buf0
 $A5 bark-buf bark-enc
-$0C bark-buf bark-send
+\ $0C bark-buf bark-send
 
 $5200 $0F dump
 
 bark-buf $0c dump
 
+hex
+: t $80 bark-buf bark-send bark-busy . ;
+: t1 $508A $80 bark-buf bark-send c@ . ;
 
