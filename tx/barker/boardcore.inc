@@ -421,3 +421,4 @@ LCDS6:
        .endif
 
 
+.include "barker.inc"
