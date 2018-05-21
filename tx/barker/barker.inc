@@ -1,16 +1,16 @@
 
 ; --------------------------------------------------------------------------------
-BBUSY:
-        CLR     A
-        BTJF    DMA1_C2SPR, #7, 1$
-1$:
-        RLC     A
-        DECW    X
-        LD      (X),A
-        CLR     A
-        DECW    X
-        LD      (X),A
-        RET
+; BBUSY:
+;         CLR     A
+;         BTJF    DMA1_C2SPR, #7, 1$
+; 1$:
+;         RLC     A
+;         DECW    X
+;         LD      (X),A
+;         CLR     A
+;         DECW    X
+;         LD      (X),A
+;         RET
 
 ; ------------------------------------------------------------------------------
 ; Send byte as 11-chip [Barker code](https://en.wikipedia.org/wiki/Barker_code) via SPI.
@@ -106,7 +106,7 @@ BARK_WAIT:
 		RET
 
 ; --------------------------------------------------------------------------------
-;       B-0!  ( addr -- )
+;       BARK0  ( addr -- )
 ;       Fill 12 bytes buffer with sequence for 8 zero bits.
 ;		11 bytes has data, and 12-th byte always 0.
 ;		Barker code: %11100010010 \ Bit 1
@@ -114,8 +114,8 @@ BARK_WAIT:
         .dw     LINK
 
         LINK =  .
-        .db     (6)
-        .ascii  "B-0!"
+        .db     (3)
+        .ascii  "B-0"
 BARK_ZERO:
         PUSHW   X
         LDW     X, (X)
