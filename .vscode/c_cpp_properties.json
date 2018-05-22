@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}",
+                "/usr/include/newlib",
+                "/usr/include/newlib/sys",
+                "/usr/lib/gcc/arm-none-eabi/5.4.1/include",
+                "${workspaceFolder}/libopencm3",
+                "${workspaceFolder}/libopencm3/include/libopencm3/stm32/common",
+                "${workspaceFolder}/libopencm3/include/libopencm3/stm32/f1",
+                "${workspaceFolder}/apps/rx",
+                "${workspaceFolder}/libopencm3/include"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "${workspaceFolder}",
+                    "/usr/include/newlib",
+                    "/usr/include/newlib/sys",
+                    "/usr/lib/gcc/arm-none-eabi/5.4.1/include"
+                ]
+            },
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
