@@ -1,8 +1,10 @@
 CC=gcc -O3
 
-all: barker7
-	./barker7
+TARGET=barker11
 
-barker7: main.c
+all: $(TARGET)
+	./$(TARGET)
+
+$(TARGET): main.c
 	$(CC) -o $@ $^
 
