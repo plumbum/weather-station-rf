@@ -66,13 +66,15 @@ void barker_encode(uint8_t* buf, uint8_t byte)
 }
 
 #define ENC_MASK 0b1001001001001001001001001001001
-//             AAA9998887776665554443332221110
+//                 AAA9998887776665554443332221110
 #define ENC_BIT1 0b1001001000000000001000000001000
 #define ENC_BIT0 (ENC_BIT1 ^ ENC_MASK)
 
 #define ENC_TIMEOUT 48
 
-#define ENC_CHECK(var)  ((var) == 0 /* || ((var) & ((var)-1)) == 0 */)
+#define ENC_CHECK(var)  ((var) == 0 \
+        || ((var) & ((var)-1)) == 0 \
+    )
 
 int barker_decode(uint8_t inbit)
 {
@@ -82,7 +84,6 @@ int barker_decode(uint8_t inbit)
     static uint8_t bit_cnt = 0;
 
     shift_reg = (shift_reg<<1) | (inbit?1:0);
-    // uint32_t masked = (shift_reg | (shift_reg<<1)) & ENC_MASK;
     uint32_t masked = (shift_reg) & ENC_MASK;
     uint32_t t1 = masked ^ ENC_BIT1;
     uint32_t t0 = masked ^ ENC_BIT0;
@@ -91,7 +92,6 @@ int barker_decode(uint8_t inbit)
     } else {
         bit_cnt = 0;
     }
-    // printf("[%d] %08X 1:%08X 0:%08X\r\n", chip_cnt, shift_reg, t1, t0);
     if (ENC_CHECK(t1)) {
         if (chip_cnt > 4) {
             chip_cnt = 0;
@@ -113,7 +113,7 @@ int barker_decode(uint8_t inbit)
 
 }
 
-#define NOISE_PROMILLE 10
+int NOISE_PROMILLE = 10;
 
 uint8_t noise(uint8_t b)
 {
@@ -182,17 +182,20 @@ uint32_t send_recv(uint32_t b)
 
 int main(int argc, char** argv)
 {
-    int lost = 0;
-    // printf("Mask 1:%08x; 0:%08x\r\n", mask1, mask0);
-    for(uint32_t d=0; d<BYTES; d++) {
-        uint32_t data = rand();
-        uint32_t resp = send_recv(data);
-        if (data != resp) {
-            printf("%08X: %08X\r\n", data, resp);
-            lost++;
+    for(int ns=5; ns<105; ns += 5) {
+        NOISE_PROMILLE = ns;
+        int lost = 0;
+        // printf("Mask 1:%08x; 0:%08x\r\n", mask1, mask0);
+        for(uint32_t d=0; d<BYTES; d++) {
+            uint32_t data = rand();
+            uint32_t resp = send_recv(data);
+            if (data != resp) {
+                // printf("%08X: %08X\r\n", data, resp);
+                lost++;
+            }
         }
+        printf("%f;%f\r\n", (double)NOISE_PROMILLE/10, 100.0*(double)lost/BYTES);
     }
-    printf("Lost: %f\r\n", 100.0*(double)lost/BYTES);
 
     return 0;
 }
