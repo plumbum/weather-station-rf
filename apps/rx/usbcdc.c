@@ -222,11 +222,11 @@ void usbcdc_init(void)
 {
 	int i;
 
-	rcc_periph_clock_enable(RCC_GPIOC);
+	rcc_periph_clock_enable(RCC_GPIOA);
 
-	gpio_set(GPIOC, GPIO11);
-	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
-		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO11);
+	gpio_clear(GPIOA, GPIO3);
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
+		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO3);
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver,
         &dev,
@@ -237,7 +237,7 @@ void usbcdc_init(void)
 
 	for (i = 0; i < 0x800000; i++)
 		__asm__("nop");
-	gpio_clear(GPIOC, GPIO11);
+	// gpio_set(GPIOA, GPIO3);
 }
 
 void usbcdc_poll(void)

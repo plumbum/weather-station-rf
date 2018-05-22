@@ -24,13 +24,24 @@
 
 int main(void)
 {
-	// rcc_clock_setup_in_hsi_out_48mhz();
-	rcc_clock_setup_in_hse_8mhz_out_72mhz(); 
+	rcc_clock_setup_in_hsi_out_48mhz();
+	// rcc_clock_setup_in_hse_8mhz_out_72mhz(); 
 
 	rcc_periph_clock_enable(RCC_AFIO);
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
 
+	rcc_periph_clock_enable(RCC_GPIOA);
+
+	gpio_clear(GPIOA, GPIO2);
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
+		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2);
+
+	usbcdc_init();
+
 	while (1) {
+		gpio_set(GPIOA, GPIO2);
+		usbcdc_poll();
+		gpio_clear(GPIOA, GPIO2);
 		usbcdc_poll();
 	}
 }
