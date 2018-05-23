@@ -7,9 +7,6 @@
                 "/usr/include/newlib",
                 "/usr/include/newlib/sys",
                 "/usr/lib/gcc/arm-none-eabi/5.4.1/include",
-                "${workspaceFolder}/libopencm3",
-                "${workspaceFolder}/libopencm3/include/libopencm3/stm32/common",
-                "${workspaceFolder}/libopencm3/include/libopencm3/stm32/f1",
                 "${workspaceFolder}/apps/rx",
                 "${workspaceFolder}/libopencm3/include"
             ],
@@ -24,9 +21,12 @@
                 ]
             },
             "intelliSenseMode": "clang-x64",
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
-            "cppStandard": "c++17"
+            "cppStandard": "c++17",
+            "defines": [
+                "STM32F1"
+            ]
         }
     ],
     "version": 4
