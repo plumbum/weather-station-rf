@@ -6,7 +6,7 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 
-static const struct usb_device_descriptor dev = {
+static struct usb_device_descriptor dev = {
 	.bLength = USB_DT_DEVICE_SIZE,
 	.bDescriptorType = USB_DT_DEVICE,
 	.bcdUSB = 0x0200,
@@ -14,8 +14,8 @@ static const struct usb_device_descriptor dev = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	.idVendor = 0x0483,
-	.idProduct = 0x5740,
+	.idVendor = 0x1209, // 0x0483,
+	.idProduct = 0x0001, // 0x5740,
 	.bcdDevice = 0x0200,
 	.iManufacturer = 1,
 	.iProduct = 2,
@@ -141,8 +141,8 @@ static const struct usb_config_descriptor config = {
 };
 
 static const char *usb_strings[] = {
-	"Black Sphere Technologies",
-	"CDC-ACM Demo",
+	"Tuxotronic.org",
+	"Barker 11 receiver",
 	"DEMO",
 };
 
@@ -222,11 +222,14 @@ void usbcdc_init(void)
 {
 	int i;
 
+	dev.iSerialNumber = *((uint8_t*)0x1FFFF7E8);
+
 	rcc_periph_clock_enable(RCC_GPIOA);
 
 	gpio_clear(GPIOA, GPIO3);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO3);
+
 
 	usbd_dev = usbd_init(&st_usbfs_v1_usb_driver,
         &dev,
@@ -235,8 +238,7 @@ void usbcdc_init(void)
         usbd_control_buffer, sizeof(usbd_control_buffer));
 	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 
-	for (i = 0; i < 0x800000; i++)
-		__asm__("nop");
+	for (i = 0; i < 0x7FFFFF; i++) __asm__("nop");
 	// gpio_set(GPIOA, GPIO3);
 }
 
