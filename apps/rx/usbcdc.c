@@ -6,6 +6,10 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 
+// http://pid.codes/howto/
+// http://pid.codes/1209/
+
+
 static struct usb_device_descriptor dev = {
 	.bLength = USB_DT_DEVICE_SIZE,
 	.bDescriptorType = USB_DT_DEVICE,
@@ -14,7 +18,7 @@ static struct usb_device_descriptor dev = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	.idVendor = 0x1209, // 0x0483,
+	.idVendor =  0x1209, // 0x0483, // 0xF055 - foss
 	.idProduct = 0x0001, // 0x5740,
 	.bcdDevice = 0x0200,
 	.iManufacturer = 1,

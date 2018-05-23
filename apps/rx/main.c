@@ -21,6 +21,8 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include "usbcdc.h"
+#include "delay.h"
+#include "lcd/lcdhw.h"
 
 int main(void)
 {
@@ -32,19 +34,33 @@ int main(void)
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	gpio_clear(GPIOA, GPIO2);
+	gpio_clear(GPIOA, GPIO2 | GPIO8);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
-		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2);
-	gpio_clear(GPIOA, GPIO8);
-	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
-		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO8);
+		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2 | GPIO8);
+
+	delay_setup();
+
+	lcd_init(0);
+
+	lcd_clr(0x000F);
+
+	lcd_box(20, 10, 200, 100, 0xF800);
+
+	uint8_t c = 0;
+	for(int y=0; y<240; y += 14) {
+		for(int x=0; x<315; x += 9) {
+			lcd_char(c, x, y, 0xFFFF, 0);
+			c++;
+		}
+	}
 
 	usbcdc_init();
 
+	int clr = 0;
 	while (1) {
-		gpio_set(GPIOA, GPIO2);
 		usbcdc_poll();
-		gpio_clear(GPIOA, GPIO2);
-		usbcdc_poll();
+
+		// lcd_clr( (clr & 4)?0xF800:0 | (clr & 2)?0x07E0:0 | (clr & 1)?0x001F:0);
+		clr = (clr+1) & 7;
 	}
 }
