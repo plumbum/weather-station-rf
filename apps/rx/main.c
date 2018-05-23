@@ -24,8 +24,8 @@
 
 int main(void)
 {
-	rcc_clock_setup_in_hsi_out_48mhz();
-	// rcc_clock_setup_in_hse_8mhz_out_72mhz(); 
+	// rcc_clock_setup_in_hsi_out_48mhz();
+	rcc_clock_setup_in_hse_8mhz_out_72mhz(); 
 
 	rcc_periph_clock_enable(RCC_AFIO);
 	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
@@ -35,6 +35,9 @@ int main(void)
 	gpio_clear(GPIOA, GPIO2);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO2);
+	gpio_clear(GPIOA, GPIO8);
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_2_MHZ,
+		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO8);
 
 	usbcdc_init();
 
