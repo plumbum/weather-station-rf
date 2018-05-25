@@ -52,9 +52,17 @@ int main(void)
 
 	int clr = 7;
 	lcd_color_t color = ((clr & 4)?0xF800:0) | ((clr & 2)?0x07E0:0) | ((clr & 1)?0x001F:0);
+	/*
 	for(int y=0; y<238; y += 14) {
 		for(int x=0; x<315; x += 8) {
 			lcd_char(c, x, y, color, 0);
+			c++;
+		}
+	}
+	*/
+	for(int y=0; y<238; y += 28) {
+		for(int x=0; x<315; x += 16) {
+			lcd_glyph(0, c, x, y, color, 0);
 			c++;
 		}
 	}

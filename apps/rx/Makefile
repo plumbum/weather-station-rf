@@ -20,8 +20,10 @@
 BINARY = main
 
 OBJS		+= usbcdc.o
-OBJS 		+= lcd/ssd1289.o
 OBJS		+= delay.o
+OBJS 		+= lcd/ssd1289.o
+OBJS 		+= lcd/psf.o
+OBJS 		+= lcd/mono16x28.o
 
 LDSCRIPT = ../stm32f103xb.ld
 

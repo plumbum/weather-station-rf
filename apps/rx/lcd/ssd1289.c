@@ -6,6 +6,8 @@
 #include "../delay.h"
 
 #include "font8x14.h"
+#include "mono16x28.h"
+#include "psf.h"
 
 // Display ID 0x8989
 // Controller: SSD1289 / Display: TFT8K1711FPC-A1-E / Board: YX32B
@@ -78,6 +80,31 @@ void lcd_clr(lcd_color_t color)
     lcd_data();
     for(int i=0; i<LCD_SIZE; i++) {
         lcd_write(color);
+    }
+}
+
+void lcd_glyph(psf2_t* font, int glyph, lcd_coord_t x, lcd_coord_t y, lcd_color_t fg, lcd_color_t bg)
+{
+    font = mono16x28_psf; // TODO
+
+    lcd_area(x, y, x+font->header.width-1, y+font->header.height);
+    lcd_addr();
+    lcd_write(0x22);
+    lcd_data();
+
+    uint8_t* p_glyph = psf_get_glyph(font, glyph);
+
+    int bcnt = 0;
+    uint8_t b;
+    for(int r=0; r < font->header.height; r++) {
+        for(int c=0; c < font->header.width; c++) {
+            if (bcnt == 0) {
+                b = *p_glyph++;
+            }
+            lcd_write((b & 0x80)? fg : bg );
+            b <<= 1;
+            bcnt = (bcnt + 1) & 7;
+        }
     }
 }
 
