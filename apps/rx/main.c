@@ -47,16 +47,18 @@ int main(void)
 	lcd_box(20, 10, 200, 100, 0xF800);
 
 	uint8_t c = 0;
-	for(int y=0; y<240; y += 14) {
-		for(int x=0; x<315; x += 9) {
-			lcd_char(c, x, y, 0xFFFF, 0);
+
+	usbcdc_init();
+
+	int clr = 7;
+	lcd_color_t color = ((clr & 4)?0xF800:0) | ((clr & 2)?0x07E0:0) | ((clr & 1)?0x001F:0);
+	for(int y=0; y<238; y += 14) {
+		for(int x=0; x<315; x += 8) {
+			lcd_char(c, x, y, color, 0);
 			c++;
 		}
 	}
 
-	usbcdc_init();
-
-	int clr = 0;
 	while (1) {
 		usbcdc_poll();
 

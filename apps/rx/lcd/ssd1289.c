@@ -83,7 +83,6 @@ void lcd_clr(lcd_color_t color)
 
 void lcd_char(char c, lcd_coord_t x, lcd_coord_t y, lcd_color_t fg, lcd_color_t bg)
 {
-
     lcd_area(x, y, x+7, y+13);
     lcd_addr();
     lcd_write(0x22);
@@ -101,6 +100,15 @@ void lcd_char(char c, lcd_coord_t x, lcd_coord_t y, lcd_color_t fg, lcd_color_t 
             }
             b <<= 1;
         }
+    }
+}
+
+void lcd_str(char* s, lcd_coord_t x, lcd_coord_t y, lcd_color_t fg, lcd_color_t bg)
+{
+    char c;
+    while((c = *s++) != 0) {
+        lcd_char(c, x, y, fg, bg);
+        x += 8;
     }
 }
 

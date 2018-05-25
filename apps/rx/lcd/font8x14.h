@@ -1,6 +1,9 @@
 #ifndef _FNT8X14_H_
 #define _FNT8X14_H_
 
+// xxd -i stuff.jpg stuff.h
+
+
 #define font8x14_len = 3584;
 
 const unsigned char font8x14[] = {
