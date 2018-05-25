@@ -1,7 +1,7 @@
 #ifndef _FNT8X14_H_
 #define _FNT8X14_H_
 
-// xxd -i stuff.jpg stuff.h
+// xxd -i stuff.bin stuff.h
 
 
 #define font8x14_len = 3584;
