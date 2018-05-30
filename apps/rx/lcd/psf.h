@@ -33,15 +33,15 @@ typedef struct {
 
 typedef struct {
     psf2_header_t header;
-    uint8_t data[];
 } psf2_t; 
 
-uint8_t* psf_get_glyph(const psf2_t* font, int glyph);
+uint8_t* psf_get_glyph(const psf2_t* font, unsigned int glyph);
 
 uint32_t psf_glyph_width(const psf2_t* font);
 
 uint32_t psf_glyph_height(const psf2_t* font);
 
-uint32_t psf_glyphs(const psf2_t* font);
+uint32_t psf_glyphs_num(const psf2_t* font);
+
 
 #endif
