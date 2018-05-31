@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ var psf2txt = flag.Bool("t", false, "Convert psf to txt")
 var txt2psf = flag.Bool("p", false, "Convert txt to psf")
 var inFileName = flag.String("i", "-", "Input file name. '-' for stdin")
 var outFileName = flag.String("o", "-", "Output file name. '-' for stdout")
+var unicodeDefault = flag.Bool("ud", false, "If unicode map not defined set default value")
 
 var inFile *os.File
 var outFile *os.File
@@ -116,6 +118,7 @@ func (psf *Psf2) ReadPsf(r io.Reader) error {
 	psf.Glyphs = make([]Glyph, psf.Length)
 	for i := uint32(0); i < psf.Length; i++ {
 		psf.Glyphs[i].Data = make([]byte, psf.CharSize)
+		psf.Glyphs[i].Unicode = make([]rune, 0)
 
 		len, err := r.Read(psf.Glyphs[i].Data)
 		if err != nil {
@@ -124,23 +127,43 @@ func (psf *Psf2) ReadPsf(r io.Reader) error {
 		if len < int(psf.CharSize) {
 			return fmt.Errorf("Unexpected end")
 		}
+	}
 
+	if psf.Flags&0x01 == 0x01 {
+		// Unicode mapping
+		reader := bufio.NewReader(r)
+		for i := uint32(0); i < psf.Length; i++ {
+			codes, err := reader.ReadString('\xFF')
+			if err != nil {
+				return err
+			}
+			runeCodes := []rune(codes)
+			psf.Glyphs[i].Unicode = runeCodes[:len(runeCodes)-1]
+		}
 	}
 
 	return nil
 }
 
+// WriteTxt
 func (psf Psf2) WriteTxt(w io.Writer) error {
-	fmt.Fprintln(w, "VERSION", psf.Version)
-	fmt.Fprintln(w, "HEADERSIZE", psf.HeaderSize)
-	fmt.Fprintln(w, "FLAGS", psf.Flags)
-	fmt.Fprintln(w, "LENGTH", psf.Length)
-	fmt.Fprintln(w, "CHARSIZE", psf.CharSize)
-	fmt.Fprintln(w, "HEIGHT", psf.Height)
-	fmt.Fprintln(w, "WIDTH", psf.Width)
+	fmt.Fprintln(w, "// VERSION", psf.Version)
+	fmt.Fprintln(w, "// HEADERSIZE", psf.HeaderSize)
+	fmt.Fprintln(w, "// FLAGS", psf.Flags)
+	fmt.Fprintln(w, "// LENGTH", psf.Length)
+	fmt.Fprintln(w, "// CHARSIZE", psf.CharSize)
+	fmt.Fprintln(w, "// HEIGHT", psf.Height)
+	fmt.Fprintln(w, "// WIDTH", psf.Width)
 
-	for _, glyph := range psf.Glyphs {
-		fmt.Fprintln(w, "CHAR")
+	for ch, glyph := range psf.Glyphs {
+		fmt.Fprint(w, "CHAR")
+		if *unicodeDefault && len(glyph.Unicode) == 0 {
+			fmt.Fprintf(w, " 0x%x", ch)
+		}
+		for _, ucode := range glyph.Unicode {
+			fmt.Fprintf(w, " 0x%x", ucode)
+		}
+		fmt.Fprintln(w)
 		gidx := 0
 		for row := uint32(0); row < psf.Height; row++ {
 			bidx := 0
@@ -162,6 +185,7 @@ func (psf Psf2) WriteTxt(w io.Writer) error {
 			}
 			fmt.Fprintln(w)
 		}
+		fmt.Fprintln(w)
 	}
 	return nil
 }
